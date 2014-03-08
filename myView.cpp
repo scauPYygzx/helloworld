@@ -5,9 +5,11 @@
 #define LH 1
 #define EH 0
 #define RH -1
-#define  EQ(x,y) (((x)==(y)) ? (1) : (0))
-#define  LT(x,y) (((x) < (y)) ? (1) : (0))
-#define  LQ(x,y) (((x) <= (y)) ? (1) : (0))
+#define  EQ(x,y) ((x)==(y))
+#define  LT(x,y) ((x) < (y))
+#define  LQ(x,y) ((x) <= (y))
+
+using namespace std;
 
 typedef int ElemType;
 
@@ -17,21 +19,21 @@ typedef struct node {
     struct node *lchild, *rchild;
 }node;
 
-void R_Rotate(node* p) {
+void R_Rotate(node* &p) {
     node* lc = p -> lchild;
     p -> lchild = lc -> rchild;
     lc -> rchild = p;
     p = lc;
 }
 
-void L_Rotate(node* p) {
+void L_Rotate(node* &p) {
     node* rc = p -> rchild;
     p -> rchild = rc -> lchild;
     rc -> lchild = p;
     p = rc; 
 }
 
-void LeftBalance(node* T) {
+void LeftBalance(node* &T) {
     node* lc = T -> lchild;
     node* rd;
     switch (lc -> bf){
@@ -52,7 +54,7 @@ void LeftBalance(node* T) {
     }    
 }
 
-void RightBalance(node* T) {
+void RightBalance(node* &T) {
     node* rc = T -> rchild;
     node* rd;
     switch (rc -> bf){
@@ -73,52 +75,52 @@ void RightBalance(node* T) {
     }    
 }
 
-int insert(node* T, ElemType e, int* taller) {
+int insert(node* &T, ElemType e, int &taller) {
     if(!T) {
         T = (node*)malloc(sizeof(node));
         T -> lchild = T -> rchild = NULL;
         T -> bf = EH;
-        *taller = 1;
+        taller = 1;
     }
     else {
         if (EQ(e, T -> data)) {
-            *taller = 0;
+            taller = 0;
             return 0;
         }
         if(LT(e, T -> data)) { 
             if(!insert(T -> lchild, e, taller)) return 0;
-            if(*taller) {
+            if(taller) {
                 switch (T -> bf){
                     case LH:
                         LeftBalance(T);
-                        *taller = 0;
+                        taller = 0;
                         break;
                     case EH:
                         T -> bf = LH;
-                        *taller = 1;
+                        taller = 1;
                         break;
                     case RH:
                         T -> bf = EH;
-                        *taller = 0;
+                        taller = 0;
                         break;
                 }
             }
         }
         else {
             if(!insert(T -> rchild, e, taller)) return 0;
-            if(*taller) {
+            if(taller) {
                 switch (T -> bf){
                     case LH:
                         T -> bf = EH;
-                        *taller = 0;
+                        taller = 0;
                         break;
                     case EH:
                         T -> bf = RH;
-                        *taller = 1;
+                        taller = 1;
                         break;
                     case RH:
                         RightBalance(T);
-                        *taller = 0;
+                        taller = 0;
                         break;
                 }
             }
@@ -128,21 +130,25 @@ int insert(node* T, ElemType e, int* taller) {
 }
 
 void LDR(node *T) {
-    if(T -> lchild) LDR(T -> lchild);
-    printf("%d ", T -> data);
-    if(T -> rchild) LDR(T -> rchild);
+    if(T) {
+        LDR(T -> lchild);
+        printf("%d ", T -> data);
+        LDR(T -> rchild);
+    }
 }
 
 int main() {
     int n, m, tmp = 0;
-    node *root = NULL;
+    node* root = NULL;
     scanf("%d", &n);
     while(n--) {
         scanf("%d", &m);
-        insert(root, m, &tmp);    
+        insert(root, m, tmp);   
+        if(!root) puts("null"); 
     }
-    LDR(root);
+    //LDR(root);
     //puts("s");
+    //printf("%d\n", root->data);
     system("pause");
     return 0;
 }
